@@ -54,8 +54,13 @@ void outportb(unsigned short _port, unsigned char _data)
 
 void main()
 {
+    gdt_install();
+    idt_install();
+    isrs_install();
     init_video();
     //__asm__ __volatile__("sti");
     puts("Hello World!\n");
+    int i = 8 / 0;
+    puts(i);
     for(;;);
 }
