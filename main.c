@@ -57,10 +57,12 @@ void main()
     gdt_install();
     idt_install();
     isrs_install();
+    irq_install();
+    timer_install();
     init_video();
-    //__asm__ __volatile__("sti");
-    puts("Hello World!\n");
-    int i = 8 / 0;
-    puts(i);
+    __asm__ __volatile__("sti");
+    puts("System Start!\n");
+    //int i = 8 / 0;
+    //puts(i);
     for(;;);
 }
