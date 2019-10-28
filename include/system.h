@@ -33,4 +33,6 @@ void irq_install();
 
 void timer_install();
 
+void keyborad_install();
+
 #endif
