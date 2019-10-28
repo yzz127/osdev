@@ -17,6 +17,10 @@ kerndev.iso: kernel
 run: kerndev.iso
 	qemu-system-i386 -cdrom kerndev.iso
 
+debug: kernel
+	objcopy --only-keep-debug kernel kernel.debug
+	qemu-system-i386 -s -S -kernel kernel
+
 %.o: %.c
 	$(CC) $(CFLAGS) $< -o $@
 

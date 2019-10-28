@@ -16,7 +16,7 @@ struct gdt_ptr
     unsigned int base;
 } __attribute__ ((packed));
 
-struct gdt_entry gdt[3];
+struct gdt_entry gdt[5];
 struct gdt_ptr gp;
 
 extern void gdt_flush();
@@ -36,14 +36,18 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 
 void gdt_install()
 {
-    gp.limit = (sizeof(struct gdt_entry) * 3) - 1;
+    gp.limit = (sizeof(struct gdt_entry) * 5) - 1;
     gp.base = &gdt;
 
-    gdt_set_gate(0, 0, 0, 0, 0);
+    gdt_set_gate(0, 0, 0, 0, 0);                // Null segment
 
-    gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
+    gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); // Code segment, 0x08 offset from GDT base
 
-    gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
+    gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data segment, 0x10 offset from GDT base
+
+    gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
+
+    gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
 
     gdt_flush();
 }

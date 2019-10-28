@@ -27,7 +27,7 @@ void move_csr(void)
 
     outportb(0x3D4, 14);
     outportb(0x3D5, temp >> 8);
-    outportb(0x3D3, 15);
+    outportb(0x3D4, 15);
     outportb(0x3D5, temp);
 }
 

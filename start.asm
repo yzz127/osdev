@@ -31,14 +31,14 @@ stublet:
 global gdt_flush
 extern gp
 gdt_flush:
-    lgdt [gp]
-    mov ax, 0x10
-    mov ds, ax
+    lgdt [gp]           ; Load the new GDT pointer
+    mov ax, 0x10        ; 0x10 is the offset in the GDT to the data segment
+    mov ds, ax          ; Load all data segment selectors
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    jmp 0x08:flush2
+    jmp 0x08:flush2     ; 0x08 is the offset to the code segment, jmp to flush2 in the code segment (0x08 offset) and set the current cs with target cs
 flush2:
     ret
 
