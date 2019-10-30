@@ -18,7 +18,8 @@ gdb kernel.debug
 (gdb) target remote :1234
 ```
 ### Register handlers
-* 
+* time
+* keyboard
 
 ## Operating System Notes (To be categorized)
 
@@ -91,6 +92,73 @@ The special, CPU-dedicated interrupts are shown below.
 * 17 - Alignment check exception
 * 18 - Machine check exception
 * 19-31 - Reserved
+
+```c
+struct idt_entry
+{
+    unsigned short base_lo;     // The lower 16 bits of the address to jump to when the interrupt fires
+    unsigned short sel;         // Kernel segment selector
+    unsigned char always0;      // Always zero
+    unsigned char flags;
+    unsigned short base_hi;     // The upper 16 bits of the address to jump to
+}
+```
+
+Flags byte format:
+00110 (bit 0:4): always 00110 (decimal 10)
+DPL (bit 5:6): privilege level
+P (bit 7): An entry to handle interrupt is present. Any descriptor with this bit clear will cause a "Interrupt Not Handled" exception
+
+Interrupt Requests (IRQs)
+
+Two methods for os to communicate with external devices
+* Polling: Spin in a loop, occasionally checking if the device is ready
+* Interrupts: Causing a CPU interrupt when device is ready, and interrupt handler will run
+
+All devices that are interrupt-capable have line connecting them to the PIC. The PIC is the only device that is directly connected to the CPU's interrupt pin. Two PICs (master and slave) are in modern PC, serving a total of 15 interruptable devices (one line is sued to signal the slave PIC)
+
+PIC mappings can be remapped, default mappings are:
+* IRQ 0:7 - INT 0x8:0xF
+* IRQ 8:15 - INT 0x70:0x77
+
+To avoid conflict with CPU signal exceptions, IRQs 0:15 usually gets remapped to ISRs 32:47
+
+Communicating with PICs:
+* Master: control port (0x20), data port (0x21)
+* Slave: control port (0xA0), data port (0xA1)
+
+Programmable Interval Timer (PIT) is a chip connected to IRQ0. It can interrupt the CPU at a user-defined rate (18.2HZ and 1.1931MHZ). The PIT is the primary method used for implementing a system clock. Internal clock oscillates at around 1.1931MHz, and is fed with frequency divider to module the final output frequency.
+
+Three channels:
+* Channel 0: Output is connected to IRQ0
+* Channel 1: Used to control refresh rates for DRAM (no longer implemented)
+* Channel 2: Controls the PC speaker
+
+Communicating with PIT:
+control port (0x43), channel 0 data port (0x40), channel 1 data port (0x41), channel 2 data port (0x42)
+
+Paging is used for memory protection and virtual memory. Virtual address space is usually split into 4K (0x1000) blocks called pages. Pages can be mapped on to frames of same block size to physical memory.
+
+Page table entry format:
+P: (bit 0): Set if the page is present in memory
+R/W: (bit 1): Set if the page is writeable, unset if the page is read-only. Not applied when code is running in kernel-mode
+U/S (bit 2): Set if the page is in user-mode, unset if the page is in supervisor(kernel)-mode. User-mode code can not write to or read from kernel-mode pages
+Reserved (bit 3:4): Used by CPU internally
+A (bit 5): Set if the page has been accessed (set by the CPU)
+D (bit 6): Set if the page has been written to (become dirty)
+Reserved (bit 7:8): Used by CPU internally
+AVAIL (bit 9:11): Unused and available for kernel-use
+Page frame address (bit 12:31): The high 20 bits of the frame address in physical memory 
+
+Enabling paging:
+1. Copy the location of the page directory into the CR3 register
+2. Set the PG bit in the CR0 register
+
+Page faults can be caused:
+* Reading from or writing to an area of memory that is not mapped ('present' flag is not set)
+* The process is in user-mode and tries to write to a read-only page
+* The process is in user-mode and tries to access a kernel-only page
+* The page table entry is corrupted (the reserved bits have been overwritten)
 
 ## References and Further Reading
 * http://www.osdever.net/bkerndev/index.php

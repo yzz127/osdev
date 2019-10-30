@@ -38,7 +38,7 @@ gdt_flush:
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    jmp 0x08:flush2     ; 0x08 is the offset to the code segment, jmp to flush2 in the code segment (0x08 offset) and set the current cs with target cs
+    jmp 0x08:flush2     ; 0x08 is the offset to the code segment, jmp to flush2 in the code segment (0x08 offset) and set the current cs with target 
 flush2:
     ret
 

@@ -58,12 +58,14 @@ void main()
     idt_install();
     isrs_install();
     irq_install();
-    timer_install();
+    timer_install(10);
     keyborad_install();
     init_video();
     __asm__ __volatile__("sti");
     puts("System Start!\n");
-    //int i = 8 / 0;
-    //puts(i);
+    // int i = 8 / 0;
+    // puts(i);
+    // asm volatile ("int $0x3");
+    // asm volatile ("int $0x4");
     for(;;);
 }
