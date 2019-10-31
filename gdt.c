@@ -1,6 +1,6 @@
 #include <system.h>
 
-struct gdt_entry
+typedef struct gdt_entry
 {
     unsigned short limit_low;
     unsigned short base_low;
@@ -8,16 +8,16 @@ struct gdt_entry
     unsigned char access;
     unsigned char granularity;
     unsigned char base_high;
-} __attribute__((packed));
+} __attribute__((packed)) gdt_entry_t;
 
-struct gdt_ptr
+typedef struct gdt_ptr
 {
     unsigned short limit;
     unsigned int base;
-} __attribute__ ((packed));
+} __attribute__ ((packed)) gdt_ptr_t;
 
-struct gdt_entry gdt[5];
-struct gdt_ptr gp;
+gdt_entry_t gdt[5];
+gdt_ptr_t gp;
 
 extern void gdt_flush();
 
@@ -36,7 +36,7 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 
 void gdt_install()
 {
-    gp.limit = (sizeof(struct gdt_entry) * 5) - 1;
+    gp.limit = (sizeof(gdt_entry_t) * 5) - 1;
     gp.base = &gdt;
 
     gdt_set_gate(0, 0, 0, 0, 0);                // Null segment

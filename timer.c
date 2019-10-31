@@ -2,7 +2,7 @@
 
 int timer_ticks = 0;
 
-void timer_handler(struct regs *r)
+void timer_handler(register_t *r)
 {
     timer_ticks++;
     if (timer_ticks % 18 == 0)

@@ -19,20 +19,22 @@ extern void gdt_install();
 extern void idt_install();
 extern void isrs_install();
 
-struct regs
+typedef struct regs
 {
     unsigned int gs, fs, es, ds;
     unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
     unsigned int int_no, err_code;
     unsigned int eip, cs, eflags, useresp, ss;
-};
+} register_t;
 
-void irq_install_handler(int irq, void (*handler)(struct regs *r));
+void irq_install_handler(int irq, void (*handler)(register_t *r));
 void irq_uninstall_handler(int irq);
 void irq_install();
 
 void timer_install(unsigned int frequency);
 
 void keyborad_install();
+
+#define NULL 0
 
 #endif

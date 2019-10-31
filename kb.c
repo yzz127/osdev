@@ -40,7 +40,7 @@ unsigned char kbdus[128] =
     0,	/* All other keys are undefined */
 };
 
-void keyboard_handler(struct regs *r)
+void keyboard_handler(register_t *r)
 {
     unsigned char scancode;
 

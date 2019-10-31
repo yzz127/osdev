@@ -160,6 +160,13 @@ Page faults can be caused:
 * The process is in user-mode and tries to access a kernel-only page
 * The page table entry is corrupted (the reserved bits have been overwritten)
 
+The page fault interrupt number is 14, the address that caused the fault will be saved to CR2 register. The error code represents:
+* bit 0: the fault was caused by page not present (0) or some other reasons (1)
+* bit 1: the fault was caused by operation of writing (1), or reading (0)
+* bit 2: the processor was running in user-mode (1), or kernel-mode (0)
+* bit 3: the fault was caused by reserved bits being overwritten (1)
+* bit 4: the fault occurred during an instruction fetch (1)
+
 ## References and Further Reading
 * http://www.osdever.net/bkerndev/index.php
 * http://www.jamesmolloy.co.uk/tutorial_html/

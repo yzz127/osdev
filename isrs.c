@@ -106,7 +106,7 @@ unsigned char *exception_messages[] =
     "Reserved",
 };
 
-void fault_handler(struct regs *r)
+void fault_handler(register_t *r)
 {
     if (r->int_no < 32)
     {
