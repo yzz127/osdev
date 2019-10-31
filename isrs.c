@@ -106,12 +106,35 @@ uint8_t *exception_messages[] =
     "Reserved",
 };
 
+void *irs_routines[32] =
+{
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+};
+
+void irs_install_handler(int irs, void (*handler)(register_t *r))
+{
+    irs_routines[irs] = handler;
+}
+
 void fault_handler(register_t *r)
 {
     if (r->int_no < 32)
     {
-        puts(exception_messages[r->int_no]);
-        puts(" Exception. System Halted!\n");
-        for (;;);
+        void (*handler)(register_t *r);
+
+        handler = irs_routines[r->int_no];
+        if (handler)
+        {
+            handler(r);
+        }
+        else
+        {
+            puts(exception_messages[r->int_no]);
+            puts(" Exception. System Halted!\n");
+            for (;;);
+        }
     }
 }

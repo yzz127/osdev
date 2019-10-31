@@ -111,7 +111,7 @@ void init_paging()
         i += 0x1000;
     }
 
-    irq_install_handler(14, page_fault_handler);
+    irs_install_handler(14, &page_fault_handler);
 
     switch_page_directory(kernel_directory);
 }
