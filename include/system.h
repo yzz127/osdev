@@ -46,6 +46,8 @@ void irq_install_handler(int irq, void (*handler)(register_t *r));
 void irq_uninstall_handler(int irq);
 void irq_install();
 
+void irs_install_handler(int irs, void (*handler)(register_t *r));
+
 void timer_install(uint32_t frequency);
 
 void keyborad_install();
