@@ -11,14 +11,14 @@ void timer_handler(register_t *r)
     }
 }
 
-void timer_install(unsigned int frequency)
+void timer_install(uint32_t frequency)
 {
     irq_install_handler(0, timer_handler);
     
-    unsigned int divisor = 1193180 / frequency;
+    uint32_t divisor = 1193180 / frequency;
     outportb(0x43, 0x36);
-    unsigned char l = (unsigned char)(divisor & 0xFF);
-    unsigned char h = (unsigned char)((divisor >> 8) & 0xFF);
+    uint8_t l = (uint8_t)(divisor & 0xFF);
+    uint8_t h = (uint8_t)((divisor >> 8) & 0xFF);
 
     outportb(0x40, l);
     outportb(0x40, h);

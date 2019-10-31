@@ -69,7 +69,7 @@ void isrs_install()
     idt_set_gate(31, (unsigned)_isr31, 0x08, 0x8E);
 }
 
-unsigned char *exception_messages[] =
+uint8_t *exception_messages[] =
 {
     "Division By Zero",
     "Debug",

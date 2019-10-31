@@ -1,6 +1,6 @@
 #include <system.h>
 
-unsigned int kmalloc_internel(unsigned int size, int align, unsigned int *phys)
+uint32_t kmalloc_internel(uint32_t size, int align, uint32_t *phys)
 {
     if (align == 1 && (start_address & 0xFFFFF000))
     {
@@ -11,26 +11,26 @@ unsigned int kmalloc_internel(unsigned int size, int align, unsigned int *phys)
     {
         *phys = start_address;
     }
-    unsigned int tmp = start_address;
+    uint32_t tmp = start_address;
     start_address += size;
     return tmp;
 }
 
-unsigned int kmalloc_a(unsigned int size) {
+uint32_t kmalloc_a(uint32_t size) {
     return kmalloc_internel(size, 1, NULL);
 }
 
-unsigned int kmalloc_p(unsigned int size, unsigned int *phys)
+uint32_t kmalloc_p(uint32_t size, uint32_t *phys)
 {
     return kmalloc_internel(size, 0, phys);
 }
 
-unsigned int kmalloc_ap(unsigned int size, unsigned int *phys)
+uint32_t kmalloc_ap(uint32_t size, uint32_t *phys)
 {
     return kmalloc_internel(size, 1, phys);
 }
 
-unsigned int kmalloc(unsigned int size)
+uint32_t kmalloc(uint32_t size)
 {
     return kmalloc_internel(size, 0, NULL);
 }

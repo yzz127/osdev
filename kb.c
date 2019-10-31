@@ -1,6 +1,6 @@
 #include <system.h>
 
-unsigned char kbdus[128] =
+uint8_t kbdus[128] =
 {
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
   '9', '0', '-', '=', '\b',	/* Backspace */
@@ -42,7 +42,7 @@ unsigned char kbdus[128] =
 
 void keyboard_handler(register_t *r)
 {
-    unsigned char scancode;
+    uint8_t scancode;
 
     scancode = inportb(0x60);
 

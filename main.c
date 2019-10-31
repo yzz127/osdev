@@ -1,6 +1,6 @@
 #include <system.h>
 
-unsigned char *memcpy(unsigned char *dest, const unsigned char *src, int count)
+uint8_t *memcpy(uint8_t *dest, const uint8_t *src, int count)
 {
     const char *sp = (const char *)src;
     char *dp = (char *)dest;
@@ -12,7 +12,7 @@ unsigned char *memcpy(unsigned char *dest, const unsigned char *src, int count)
 
 }
 
-unsigned char *memset(unsigned char *dest, unsigned char val, int count)
+uint8_t *memset(uint8_t *dest, uint8_t val, int count)
 {
     char *temp = (char *)dest;
     while (count > 0) {
@@ -22,9 +22,9 @@ unsigned char *memset(unsigned char *dest, unsigned char val, int count)
     return dest;
 }
 
-unsigned short *memsetw(unsigned short *dest, unsigned short val, int count)
+uint16_t *memsetw(uint16_t *dest, uint16_t val, int count)
 {
-    unsigned short *temp = (unsigned short *)dest;
+    uint16_t *temp = (uint16_t *)dest;
     while (count > 0) {
         *temp++ = val;
         count--;
@@ -40,14 +40,14 @@ int strlen(const char *str)
     return retval;
 }
 
-unsigned char inportb(unsigned short _port)
+uint8_t inportb(uint16_t _port)
 {
-    unsigned char rv;
+    uint8_t rv;
     __asm__ __volatile__("inb %1, %0" : "=a" (rv) : "dN" (_port));
     return rv;
 }
 
-void outportb(unsigned short _port, unsigned char _data)
+void outportb(uint16_t _port, uint8_t _data)
 {
     __asm__ __volatile__("outb %1, %0" : : "dN" (_port), "a" (_data));
 }

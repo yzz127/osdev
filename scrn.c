@@ -1,6 +1,6 @@
 #include <system.h>
 
-unsigned short *textmemptr;
+uint16_t *textmemptr;
 int attrib = 0x0F;
 int csr_x = 0; 
 int csr_y = 0;
@@ -46,9 +46,9 @@ void cls()
     move_csr();
 }
 
-void putch(unsigned char c)
+void putch(uint8_t c)
 {
-    unsigned short *where;
+    uint16_t *where;
     unsigned att = attrib << 8;
 
     if (c == 0x08)
@@ -86,20 +86,20 @@ void putch(unsigned char c)
     move_csr();
 }
 
-void puts(unsigned char *text)
+void puts(uint8_t *text)
 {
     int i;
     for (i = 0; i < strlen(text); i++)
         putch(text[i]);
 }
 
-void settextcolor(unsigned char forecolor, unsigned char backcolor)
+void settextcolor(uint8_t forecolor, uint8_t backcolor)
 {
     attrib = (backcolor << 4) | (forecolor & 0x0F);
 }
 
 void init_video(void)
 {
-    textmemptr = (unsigned short *)0xB8000;
+    textmemptr = (uint16_t *)0xB8000;
     cls();
 }
