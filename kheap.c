@@ -1,4 +1,8 @@
 #include <system.h>
+#include <kheap.h>
+
+extern uint32_t end;
+uint32_t start_address = (uint32_t)&end;
 
 uint32_t kmalloc_internel(uint32_t size, int align, uint32_t *phys)
 {

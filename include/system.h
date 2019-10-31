@@ -20,6 +20,9 @@ extern uint16_t *memsetw(uint16_t *dest, uint16_t val, int count);
 extern int strlen(const char *str);
 extern uint8_t inportb(uint16_t _port);
 extern void outportb(uint16_t _port, uint8_t _data);
+extern void panic(const char *message, const char *file);
+
+#define PANIC(msg) panic(msg, __FILE__);
 
 extern void cls();
 extern void putch(uint8_t c);

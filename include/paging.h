@@ -30,8 +30,8 @@ void init_paging();
 
 void switch_page_directory(page_directory_t *new);
 
-struct page *get_page(uint32_t address, int make, page_directory_t *dir);
+page_t *get_page(uint32_t address, int make, page_directory_t *dir);
 
-void page_fault(register_t regs);
+void page_fault_handler(register_t regs);
 
 #endif

@@ -1,4 +1,5 @@
 #include <system.h>
+#include <paging.h>
 
 uint8_t *memcpy(uint8_t *dest, const uint8_t *src, int count)
 {
@@ -52,6 +53,18 @@ void outportb(uint16_t _port, uint8_t _data)
     __asm__ __volatile__("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
+void panic(const char *message, const char *file)
+{
+    __asm__ __volatile__("cli");
+
+    puts("PANIC(");
+    puts(message);
+    puts(") at ");
+    puts(file);
+    puts("\n");
+    for(;;);
+}
+
 void main()
 {
     gdt_install();
@@ -61,11 +74,16 @@ void main()
     timer_install(10);
     keyborad_install();
     init_video();
+    init_paging();
     __asm__ __volatile__("sti");
     puts("System Start!\n");
+
+    uint32_t *ptr = (uint32_t *)0xA0000000;
+    uint32_t do_page_fault = *ptr;
+    puts(do_page_fault);
+
     // int i = 8 / 0;
     // puts(i);
     // asm volatile ("int $0x3");
-    // asm volatile ("int $0x4");
     for(;;);
 }

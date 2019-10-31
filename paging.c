@@ -1,4 +1,9 @@
 #include <paging.h>
+#include <kheap.h>
+#include <system.h>
+
+page_directory_t *kernel_directory = 0;
+page_directory_t *current_directory = 0;
 
 uint32_t *frames;
 uint32_t nframes;
@@ -16,7 +21,7 @@ static void set_frame(uint32_t frame_addr)
     frames[idx] |= (0x1 << off);
 }
 
-static void clear_frame(unsigned frame_addr)
+static void clear_frame(uint32_t frame_addr)
 {
     uint32_t frame = frame_addr / 0x1000;
     uint32_t idx = INDEX_FROM_BIT(frame);
@@ -24,7 +29,7 @@ static void clear_frame(unsigned frame_addr)
     frames[idx] &= ~(0x1 << off);
 }
 
-static void test_frame(unsigned frame_addr)
+static uint32_t test_frame(uint32_t frame_addr)
 {
     uint32_t frame = frame_addr / 0x1000;
     uint32_t idx = INDEX_FROM_BIT(frame);
@@ -106,22 +111,66 @@ void init_paging()
         i += 0x1000;
     }
 
-    irq_install_handler(14, page_fault);
+    irq_install_handler(14, page_fault_handler);
 
-    swict_page_directory(kernel_directory);
+    switch_page_directory(kernel_directory);
 }
 
 void switch_page_directory(page_directory_t *dir)
 {
     current_directory = dir;
-    asm volatile("mov %0, %%cr3":: "r"(&dir->tablesPhysical));
+    __asm__ __volatile__("mov %0, %%cr3":: "r"(&dir->tablesPhysical));
     uint32_t cr0;
-    asm volatile("mov %%cr0, %0": "=r"(cr0));
+    __asm__ __volatile__("mov %%cr0, %0": "=r"(cr0));
     cr0 |= 0x80000000;  // Enable paging
-    asm volatile("mov %0, %%cr0":: "r"(cr0));
+    __asm__ __volatile__("mov %0, %%cr0":: "r"(cr0));
 }
 
 page_t *get_page(uint32_t address, int make, page_directory_t *dir)
 {
-    
+    address /= 0x1000;
+    uint32_t table_idx = address / 1024;
+    if (dir->tables[table_idx])
+    {
+        return &dir->tables[table_idx]->pages[address % 1024];
+    }
+    else if (make)
+    {
+        uint32_t tmp;
+        dir->tables[table_idx] = (page_table_t *)kmalloc_ap(sizeof(page_table_t), &tmp);
+        memset(dir->tables[table_idx], 0, 0x1000);
+        dir->tablesPhysical[table_idx] = tmp | 0x7; // Page present, rw, user-mode
+        return &dir->tables[table_idx]->pages[address % 1024];
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void page_fault_handler(register_t regs)
+{
+    puts("Calling page fault handler");
+    uint32_t faulting_address;
+    __asm__ __volatile__("mov %%cr2, %0" : "=r" (faulting_address));
+
+    int present = !(regs.err_code & 0x1);
+    int rw = regs.err_code & 0x2;
+    int us = regs.err_code & 0x4;
+    int reserved = regs.err_code & 0x8;
+    int id = regs.err_code & 0x10;
+
+    puts("Page fault! (");
+    if (present)
+        puts("present ");
+    if (rw)
+        puts("read-only ");
+    if (us)
+        puts("user-mode ");
+    if (reserved)
+        puts("reserved ");
+    puts(") at 0x");
+    // puts(faulting_address);
+    puts("\n");
+    PANIC("Page fault");
 }
