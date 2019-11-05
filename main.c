@@ -1,5 +1,6 @@
 #include <system.h>
 #include <paging.h>
+#include <kheap.h>
 
 uint8_t *memcpy(uint8_t *dest, const uint8_t *src, int count)
 {
@@ -74,13 +75,29 @@ void main()
     timer_install(10);
     keyborad_install();
     init_video();
+    uint32_t a = kmalloc(8);
     init_paging();
     __asm__ __volatile__("sti");
     puts("System Start!\n");
 
-    uint32_t *ptr = (uint32_t *)0xA0000000;
-    uint32_t do_page_fault = *ptr;
-    puts(do_page_fault);
+    //uint32_t *ptr = (uint32_t *)0xA0000000;
+    //uint32_t do_page_fault = *ptr;
+    //puts(do_page_fault);
+
+    uint32_t b = kmalloc(8);
+    uint32_t c = kmalloc(8);
+    puts("a: ");
+    puts(a);
+    puts(", b: ");
+    puts(b);
+    puts("\nc: ");
+    puts(c);
+
+    kfree(c);
+    kfree(b);
+    uint32_t d = kmalloc(12);
+    puts(", d: ");
+    puts(d);
 
     // int i = 8 / 0;
     // puts(i);

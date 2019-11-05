@@ -1,4 +1,4 @@
-OBJECTS = start.o scrn.o gdt.o idt.o isrs.o irq.o timer.o kb.o kheap.o paging.o main.o
+OBJECTS = start.o scrn.o gdt.o idt.o isrs.o irq.o timer.o kb.o kheap.o paging.o ordered_array.o main.o
 CC = gcc
 CFLAGS = -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions -I./include -c
 LDFLAGS = -T link.ld -melf_i386

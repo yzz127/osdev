@@ -13,6 +13,8 @@ typedef unsigned short uint16_t;
 typedef unsigned long uint32_t;
 typedef unsigned long long uint64_t;
 
+typedef void * type_t;
+
 /* MAIN.C */
 extern uint8_t *memcpy(uint8_t *dest, const uint8_t *src, int count);
 extern uint8_t *memset(uint8_t *dest, uint8_t val, int count);

@@ -9,6 +9,7 @@ uint32_t *frames;
 uint32_t nframes;
 
 extern uint32_t start_address;
+extern heap_t *kheap;
 
 #define INDEX_FROM_BIT(a)   (a / (8 * 4))
 #define OFFSET_FROM_BIT(a)  (a % (8 * 4))
@@ -105,15 +106,24 @@ void init_paging()
     current_directory = kernel_directory;
 
     int i = 0;
-    while (i < start_address)
+    for (i = KHEAP_START; i < KHEAP_START + KHEAP_INITIAL_SIZE; i += 0x1000)
+        get_page(i, 1, kernel_directory);
+
+    i = 0;
+    while (i < start_address + 0x1000)
     {
         alloc_frame(get_page(i, 1, kernel_directory), 0, 0);
         i += 0x1000;
     }
 
+    for (i = KHEAP_START; i < KHEAP_START + KHEAP_INITIAL_SIZE; i += 0x1000)
+        alloc_frame(get_page(i, 1, kernel_directory), 0, 0);
+
     irs_install_handler(14, &page_fault_handler);
 
     switch_page_directory(kernel_directory);
+
+    kheap = create_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, 0xCFFFF000, 0, 0);
 }
 
 void switch_page_directory(page_directory_t *dir)
