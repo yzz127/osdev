@@ -57,7 +57,7 @@ static uint32_t first_frame()
     }
 }
 
-void alloc_frame(page_t *page, int is_kernel, int is_writeable)
+void alloc_frame(page_t *page, int32_t is_kernel, int32_t is_writeable)
 {
     if (page->frame != 0)
     {
@@ -105,7 +105,7 @@ void init_paging()
     memset(kernel_directory, 0, sizeof(page_directory_t));
     current_directory = kernel_directory;
 
-    int i = 0;
+    int32_t i = 0;
     for (i = KHEAP_START; i < KHEAP_START + KHEAP_INITIAL_SIZE; i += 0x1000)
         get_page(i, 1, kernel_directory);
 
@@ -136,7 +136,7 @@ void switch_page_directory(page_directory_t *dir)
     __asm__ __volatile__("mov %0, %%cr0":: "r"(cr0));
 }
 
-page_t *get_page(uint32_t address, int make, page_directory_t *dir)
+page_t *get_page(uint32_t address, int32_t make, page_directory_t *dir)
 {
     address /= 0x1000;
     uint32_t table_idx = address / 1024;
@@ -160,17 +160,16 @@ page_t *get_page(uint32_t address, int make, page_directory_t *dir)
 
 void page_fault_handler(register_t regs)
 {
-    puts("Calling page fault handler");
     uint32_t faulting_address;
     __asm__ __volatile__("mov %%cr2, %0" : "=r" (faulting_address));
 
-    int present = !(regs.err_code & 0x1);
-    int rw = regs.err_code & 0x2;
-    int us = regs.err_code & 0x4;
-    int reserved = regs.err_code & 0x8;
-    int id = regs.err_code & 0x10;
+    int32_t present = !(regs.err_code & 0x1);
+    int32_t rw = regs.err_code & 0x2;
+    int32_t us = regs.err_code & 0x4;
+    int32_t reserved = regs.err_code & 0x8;
+    int32_t id = regs.err_code & 0x10;
 
-    puts("Page fault! (");
+    puts("Page fault! ( ");
     if (present)
         puts("present ");
     if (rw)
@@ -179,8 +178,8 @@ void page_fault_handler(register_t regs)
         puts("user-mode ");
     if (reserved)
         puts("reserved ");
-    puts(") at 0x");
-    // puts(faulting_address);
+    puts(") at ");
+    write_hex(faulting_address);
     puts("\n");
     PANIC("Page fault");
 }

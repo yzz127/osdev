@@ -3,7 +3,7 @@
 
 #include <system.h>
 
-typedef int (*less_than_predictate_t)(type_t, type_t);
+typedef int32_t (*less_than_predictate_t)(type_t, type_t);
 
 typedef struct
 {
@@ -13,7 +13,7 @@ typedef struct
     less_than_predictate_t less_than;
 } ordered_array_t;
 
-int standard_less_than_predicate(type_t a, type_t b);
+int32_t standard_less_than_predicate(type_t a, type_t b);
 
 ordered_array_t create_ordered_array(uint32_t max_size, less_than_predictate_t less_than);
 ordered_array_t place_ordered_array(void * addr, uint32_t max_size, less_than_predictate_t less_than);

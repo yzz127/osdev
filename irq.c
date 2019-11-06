@@ -23,12 +23,12 @@ void *irq_routines[16] =
     0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void irq_install_handler(int irq, void (*handler)(register_t *r))
+void irq_install_handler(int32_t irq, void (*handler)(register_t *r))
 {
     irq_routines[irq] = handler;
 }
 
-void irq_uninstall_handler(int irq)
+void irq_uninstall_handler(int32_t irq)
 {
     irq_routines[irq] = 0;
 }

@@ -2,7 +2,7 @@
 #include <paging.h>
 #include <kheap.h>
 
-uint8_t *memcpy(uint8_t *dest, const uint8_t *src, int count)
+uint8_t *memcpy(uint8_t *dest, const uint8_t *src, int32_t count)
 {
     const char *sp = (const char *)src;
     char *dp = (char *)dest;
@@ -14,7 +14,7 @@ uint8_t *memcpy(uint8_t *dest, const uint8_t *src, int count)
 
 }
 
-uint8_t *memset(uint8_t *dest, uint8_t val, int count)
+uint8_t *memset(uint8_t *dest, uint8_t val, int32_t count)
 {
     char *temp = (char *)dest;
     while (count > 0) {
@@ -24,7 +24,7 @@ uint8_t *memset(uint8_t *dest, uint8_t val, int count)
     return dest;
 }
 
-uint16_t *memsetw(uint16_t *dest, uint16_t val, int count)
+uint16_t *memsetw(uint16_t *dest, uint16_t val, int32_t count)
 {
     uint16_t *temp = (uint16_t *)dest;
     while (count > 0) {
@@ -34,9 +34,9 @@ uint16_t *memsetw(uint16_t *dest, uint16_t val, int count)
     return dest;
 }
 
-int strlen(const char *str)
+int32_t strlen(const char *str)
 {
-    int retval;
+    int32_t retval;
     for (retval = 0; *str != '\0'; str++)
         retval++;
     return retval;
@@ -54,7 +54,7 @@ void outportb(uint16_t _port, uint8_t _data)
     __asm__ __volatile__("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
-void panic(const char *message, const char *file)
+extern void panic(const char *message, const char *file, uint32_t line)
 {
     __asm__ __volatile__("cli");
 
@@ -62,6 +62,22 @@ void panic(const char *message, const char *file)
     puts(message);
     puts(") at ");
     puts(file);
+    puts(":");
+    write_dec_str(line);
+    puts("\n");
+    for(;;);
+}
+
+extern void panic_assert(const char *file, uint32_t line, const char *desc)
+{
+    asm volatile("cli");
+
+    puts("ASSERTION-FAILED(");
+    puts(desc);
+    puts(") at ");
+    puts(file);
+    puts(":");
+    write_dec_str(line);
     puts("\n");
     for(;;);
 }
@@ -80,24 +96,24 @@ void main()
     __asm__ __volatile__("sti");
     puts("System Start!\n");
 
-    //uint32_t *ptr = (uint32_t *)0xA0000000;
-    //uint32_t do_page_fault = *ptr;
-    //puts(do_page_fault);
+    // uint32_t *ptr = (uint32_t *)0xA0000000;
+    // uint32_t do_page_fault = *ptr;
+    // puts(do_page_fault);
 
     uint32_t b = kmalloc(8);
     uint32_t c = kmalloc(8);
     puts("a: ");
-    puts(a);
+    write_hex(a);
     puts(", b: ");
-    puts(b);
+    write_hex(b);
     puts("\nc: ");
-    puts(c);
+    write_hex(c);
 
     kfree(c);
     kfree(b);
     uint32_t d = kmalloc(12);
     puts(", d: ");
-    puts(d);
+    write_hex(d);
 
     // int i = 8 / 0;
     // puts(i);

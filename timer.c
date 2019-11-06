@@ -13,7 +13,7 @@ void timer_handler(register_t *r)
 
 void timer_install(uint32_t frequency)
 {
-    irq_install_handler(0, timer_handler);
+    // irq_install_handler(0, timer_handler);
     
     uint32_t divisor = 1193180 / frequency;
     outportb(0x43, 0x36);
@@ -25,9 +25,9 @@ void timer_install(uint32_t frequency)
     
 }
 
-void timer_wait(int ticks)
+void timer_wait(int32_t ticks)
 {
-    unsigned long eticks;
+    uint64_t eticks;
 
     eticks = timer_ticks + ticks;
     while (timer_ticks < eticks)

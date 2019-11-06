@@ -114,7 +114,7 @@ void *irs_routines[32] =
     0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void irs_install_handler(int irs, void (*handler)(register_t *r))
+void irs_install_handler(int32_t irs, void (*handler)(register_t *r))
 {
     irs_routines[irs] = handler;
 }

@@ -21,7 +21,7 @@ gdt_ptr_t gp;
 
 extern void gdt_flush();
 
-void gdt_set_gate(int num, unsigned long base, unsigned long limit, uint8_t access, uint8_t gran)
+void gdt_set_gate(int32_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
 {
     gdt[num].base_low = (base & 0xFFFF);
     gdt[num].base_middle = (base >> 16) & 0xFF;

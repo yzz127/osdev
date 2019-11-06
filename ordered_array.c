@@ -1,7 +1,7 @@
 #include <system.h>
 #include <ordered_array.h>
 
-int standard_less_than_predicate(type_t a, type_t b)
+int32_t standard_less_than_predicate(type_t a, type_t b)
 {
     return (a < b)? 1 : 0;
 }

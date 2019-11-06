@@ -1,13 +1,13 @@
 #include <system.h>
 
 uint16_t *textmemptr;
-int attrib = 0x0F;
-int csr_x = 0; 
-int csr_y = 0;
+int32_t attrib = 0x0F;
+int32_t csr_x = 0; 
+int32_t csr_y = 0;
 
 void scroll(void)
 {
-    unsigned blank, temp;
+    uint16_t blank, temp;
 
     blank = 0x20 | (attrib << 8);
 
@@ -22,7 +22,7 @@ void scroll(void)
 
 void move_csr(void)
 {
-    unsigned temp;
+    uint16_t temp;
     temp = csr_y * 80 + csr_x;
 
     outportb(0x3D4, 14);
@@ -33,8 +33,8 @@ void move_csr(void)
 
 void cls()
 {
-    unsigned blank;
-    int i;
+    uint16_t blank;
+    int32_t i;
 
     blank = 0x20 | (attrib << 8);
 
@@ -46,10 +46,10 @@ void cls()
     move_csr();
 }
 
-void putch(uint8_t c)
+void putch(char c)
 {
     uint16_t *where;
-    unsigned att = attrib << 8;
+    uint16_t att = attrib << 8;
 
     if (c == 0x08)
     {
@@ -86,11 +86,79 @@ void putch(uint8_t c)
     move_csr();
 }
 
-void puts(uint8_t *text)
+void puts(char *text)
 {
-    int i;
+    int32_t i;
     for (i = 0; i < strlen(text); i++)
         putch(text[i]);
+}
+
+void write_hex(uint32_t n)
+{
+    int32_t tmp;
+    puts("0x");
+
+    char noZeroes = 1;
+
+    int32_t i;
+    for (i = 28; i > 0; i -= 4)
+    {
+        tmp = (n >> i) & 0xF;
+        if (tmp == 0 && noZeroes != 0)
+        {
+            continue;
+        }
+
+        if (tmp >= 0xA)
+        {
+            noZeroes = 0;
+            putch(tmp - 0xA + 'a');
+        }
+        else
+        {
+            noZeroes = 0;
+            putch(tmp + '0');
+        }
+    }
+
+    tmp = n & 0xF;
+    if (tmp >= 0xA)
+    {
+        putch(tmp - 0xA + 'a');
+    }
+    else
+    {
+        putch(tmp + '0');
+    }   
+}
+
+void write_dec_str(uint32_t n)
+{
+    if (n == 0)
+    {
+        puts('0');
+        return;
+    }
+
+    int32_t acc = n;
+    char c[32];
+    int32_t i = 0;
+    while (acc > 0)
+    {
+        c[i] = '0' + acc % 10;
+        acc /= 10;
+        i++;
+    }
+    c[i] = 0;
+
+    char c2[32];
+    c2[i--] = 0;
+    int32_t j = 0;
+    while (i >= 0)
+    {
+        c2[i--] = c[j++];
+    }
+    puts(c2);
 }
 
 void settextcolor(uint8_t forecolor, uint8_t backcolor)
