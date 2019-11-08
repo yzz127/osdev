@@ -20,6 +20,7 @@ gdb kernel.debug
 ### Register handlers
 * time
 * keyboard
+* page fault
 
 ## Operating System Notes (To be categorized)
 
@@ -32,6 +33,75 @@ booting sequence: BIOS->MBR->stage 1 boot loader (partition boot record)->stage 
 When GRUB loads, it presents the information from the configuration file (/boot/grub2/grub.cfg)
 
 Many daemon processes communicate using sockets. systemd creates sockets at startup, and only starts the associated tasks when a connection request for services on that socket is received, so as to gain speed and enhance parallelism in the system startup. 
+
+IDE drives formated for MBR use have three types of partition: primary, logical, and extended. The partition table is located in the master boot record (MBR) of a disk. 4 primary partitions, 2TB of maximum disk size are allowed limited by the size of MBR, additional primary partition needs to become an extended partition. Extended partition is a container for one or more logical partitions. Only one extended partition is allowed and it must be contiguous. Data is stored in the logical partition within the extended partition (data can not be stored without first creating a logical partition within the extended partition).
+
+MBR partition type example
+```shell
+~$ sudo parted -l /dev/sda
+Model: ATA SAMSUNG SSD SM87 (scsi)
+Disk /dev/sda: 256GB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags:
+
+Number  Start   End    Size    Type      File system     Flags
+ 1      1049kB  222GB  222GB   primary   ext4            boot
+ 2      222GB   256GB  34.3GB  extended
+ 5      222GB   256GB  34.3GB  logical   linux-swap(v1)
+```
+
+GUID Partition Table (GPT) layout allows 128 primary partitions, and doesn't use extended or logical partitions. 
+
+Logical Volume Manager (LVM) manages disk space using
+* Physical Volumes (PVs)
+* Volumes Groups (VGs)
+* Logical Volumes (LVs)
+
+PV as the unit of physical space that is aggregated into an abstraction called VG. The VG is then partitioned (4MB extent size) into LVs for use by the file system. 
+
+MBR is the first sector on a hard drive, containing the bootstrap code, some information, 64-byte partition table, and two byte signature. The 64-byte partition table has 4 16-byte entries and starts at offset 446 (1BEH)
+
+Partition table entry format
+| Offset (hex) | Length | Description |
+|----|:-:|:------------|
+| 0h | 1 | Status. 80h indicates active (or bootable) partition. |
+| 1h | 3 | CHS (Cylinder-Head-Sector) address of first absolute sector in partition |
+| 4h | 1 | Partition type |
+| 5h | 3 | CHS address of last absolute sector in partition |
+| 8h | 4 | Logical Block Address (LBA) of first absolute sector in partition |
+| Ch | 4 | Count of sectors in partition |
+
+Partition types
+| Value | Type |
+|:---:|:-----|
+| 83h | Linux |
+| 82h | Linux swap |
+| 05h | Extended |
+Partition table entries and signature example
+```
+000001b0: cd10 ac3c 0075 f4c3 bdff 0800 0000 8020  ...<.u.........
+000001c0: 2100 83fe ffff 0008 0000 00b0 cf19 00fe  !...............
+000001d0: ffff 05fe ffff febf cf19 0270 ff03 0000  ...........p....
+000001e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001f0: 0000 0000 0000 0000 0000 0000 0000 55aa  ..............U.
+```
+Active partition starts from 00000800h and extend 19cfb000h, ending sector at 2048 + 433041408 - 1 = 433043455
+```shell
+$ sudo fdisk -l /dev/sda
+Disk /dev/sda: 238.5 GiB, 256060514304 bytes, 500118192 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x0008ffbd
+
+Device     Boot     Start       End   Sectors   Size Id Type
+/dev/sda1  *         2048 433043455 433041408 206.5G 83 Linux
+/dev/sda2       433045502 500117503  67072002    32G  5 Extended
+/dev/sda5       433045504 500117503  67072000    32G 82 Linux swap / Solaris
+```
+MBR doesn't contain partition table entries for the logical partition. Each logical partition within the extended partition contains and Extended Boot Record (EBR). EBR is 512-byte in length, and uses a partition table at offset 446 (1BEh). Only two entries in the EBR partition table are used. The first defines the offset and size of the current partition; and the second defines the offset and count to the end of the **next** logical partition (all zeros for the last logical partition).
 
 Framebuffer address starts at 0xb8000, and controls a screen of characters 80 wide by 25 high. It is indexed by (y * 80 + x) * 2. Additional VGA controller at 0x3d4 (control register) and 0x3d5 (data register)
 
@@ -154,7 +224,7 @@ A (bit 5): Set if the page has been accessed (set by the CPU)
 D (bit 6): Set if the page has been written to (become dirty)
 Reserved (bit 7:8): Used by CPU internally
 AVAIL (bit 9:11): Unused and available for kernel-use
-Page frame address (bit 12:31): The high 20 bits of the frame address in physical memory 
+Page frame address (bit 12:31): The high 20 bits of the frame address in physical memory.
 
 Enabling paging:
 1. Copy the location of the page directory into the CR3 register
@@ -175,8 +245,9 @@ The page fault interrupt number is 14, the address that caused the fault will be
 
 Sysfs is a virtual filesystem that the Linux kernel uses to export information about kernel objects to processes running in user space. As a virtual filesystem, sysfs is an in-memory filesystem that is mounted at /sys
 
+
 ## References and Further Reading
 * http://www.osdever.net/bkerndev/index.php
 * http://www.jamesmolloy.co.uk/tutorial_html/
 * https://samypesse.gitbook.io/how-to-create-an-operating-system/
-* https://developer.ibm.com/articles/l-linuxboot/
+* https://developer.ibm.com/technologies/linux/series/learn-linux-101
