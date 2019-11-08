@@ -27,6 +27,12 @@ A device is considered bootable if the bootsector contains the valid signature b
 
 BIOS physically searches for a boot device by loading the first 512 bytes from the bootsector of the each device into physical memory, staring at the address 0x7c00. When the valid signature bytes are detected, BIOS transfers the control to the 0x7c00 memory address (via jmp) to execute the bootsector code.
 
+booting sequence: BIOS->MBR->stage 1 boot loader (partition boot record)->stage 2 boot loader->kernel/initrd(initramfs)->/sbin/init(systemd, pid 1)->/etc/init.d
+
+When GRUB loads, it presents the information from the configuration file (/boot/grub2/grub.cfg)
+
+Many daemon processes communicate using sockets. systemd creates sockets at startup, and only starts the associated tasks when a connection request for services on that socket is received, so as to gain speed and enhance parallelism in the system startup. 
+
 Framebuffer address starts at 0xb8000, and controls a screen of characters 80 wide by 25 high. It is indexed by (y * 80 + x) * 2. Additional VGA controller at 0x3d4 (control register) and 0x3d5 (data register)
 
 Character code (bit 0:7), foreground color (bit 8:11), background color (bit 12:15)
@@ -166,6 +172,8 @@ The page fault interrupt number is 14, the address that caused the fault will be
 * bit 2: the processor was running in user-mode (1), or kernel-mode (0)
 * bit 3: the fault was caused by reserved bits being overwritten (1)
 * bit 4: the fault occurred during an instruction fetch (1)
+
+Sysfs is a virtual filesystem that the Linux kernel uses to export information about kernel objects to processes running in user space. As a virtual filesystem, sysfs is an in-memory filesystem that is mounted at /sys
 
 ## References and Further Reading
 * http://www.osdever.net/bkerndev/index.php
