@@ -245,6 +245,13 @@ The page fault interrupt number is 14, the address that caused the fault will be
 
 Sysfs is a virtual filesystem that the Linux kernel uses to export information about kernel objects to processes running in user space. As a virtual filesystem, sysfs is an in-memory filesystem that is mounted at /sys
 
+Shared libraries
+```shell
+$ ldd /bin/ln
+	linux-vdso.so.1 =>  (0x00007fffde75d000) # Making the fastest syscall available on the system, either through interrupt or Fast System Call (SYSENTER, SYSEXIT)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f74b8336000) # Dynamically linked library
+	/lib64/ld-linux-x86-64.so.2 (0x00007f74b8700000) # ld binary executable for dynamic loading and linking
+```
 
 ## References and Further Reading
 * http://www.osdever.net/bkerndev/index.php
